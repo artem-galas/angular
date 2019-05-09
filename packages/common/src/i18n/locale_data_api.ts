@@ -232,7 +232,7 @@ export function getLocaleId(locale: string): string {
  * @publicApi
  */
 export function getLocaleDayPeriods(
-    locale: string, formStyle: FormStyle, width: TranslationWidth): [string, string] {
+    locale: string, formStyle: FormStyle, width: TranslationWidth): ReadonlyArray<string> {
   const data = findLocaleData(locale);
   const amPmData = <[
     string, string
@@ -254,7 +254,7 @@ export function getLocaleDayPeriods(
  * @publicApi
  */
 export function getLocaleDayNames(
-    locale: string, formStyle: FormStyle, width: TranslationWidth): string[] {
+    locale: string, formStyle: FormStyle, width: TranslationWidth): ReadonlyArray<string> {
   const data = findLocaleData(locale);
   const daysData =
       <string[][][]>[data[LocaleDataIndex.DaysFormat], data[LocaleDataIndex.DaysStandalone]];
@@ -275,7 +275,7 @@ export function getLocaleDayNames(
  * @publicApi
  */
 export function getLocaleMonthNames(
-    locale: string, formStyle: FormStyle, width: TranslationWidth): string[] {
+    locale: string, formStyle: FormStyle, width: TranslationWidth): ReadonlyArray<string> {
   const data = findLocaleData(locale);
   const monthsData =
       <string[][][]>[data[LocaleDataIndex.MonthsFormat], data[LocaleDataIndex.MonthsStandalone]];
@@ -286,7 +286,6 @@ export function getLocaleMonthNames(
 /**
  * Retrieves Gregorian-calendar eras for the given locale.
  * @param locale A locale code for the locale format rules to use.
- * @param formStyle The required grammatical form.
  * @param width The required character width.
 
  * @returns An array of localized era strings.
@@ -295,7 +294,7 @@ export function getLocaleMonthNames(
  *
  * @publicApi
  */
-export function getLocaleEraNames(locale: string, width: TranslationWidth): [string, string] {
+export function getLocaleEraNames(locale: string, width: TranslationWidth): ReadonlyArray<string> {
   const data = findLocaleData(locale);
   const erasData = <[string, string][]>data[LocaleDataIndex.Eras];
   return getLastDefinedValue(erasData, width);
