@@ -216,32 +216,67 @@ export function downgradeComponent(info: {
   return directiveFactory;
 }
 
-/**
- * Synchronous promise-like object to wrap parent injectors,
- * to preserve the synchronous nature of Angular 1's $compile.
- */
-class ParentInjectorPromise {
+class SyncPromise<T> {
   // TODO(issue/24571): remove '!'.
-  private injector !: Injector;
-  private injectorKey: string = controllerKey(INJECTOR_KEY);
-  private callbacks: ((injector: Injector) => any)[] = [];
+  protected value !: T;
+  private resolved = false;
+  private callbacks: ((value: T) => unknown)[] = [];
 
-  constructor(private element: IAugmentedJQuery) {
-    // Store the promise on the element.
-    element.data !(this.injectorKey, this);
+  resolve(value: T): void {
+    this.value = value;
+    this.resolved = true;
+
+    // Run the queued callbacks.
+    this.callbacks.forEach(callback => callback(value));
+    this.callbacks.length = 0;
   }
 
-  then(callback: (injector: Injector) => any) {
-    if (this.injector) {
-      callback(this.injector);
+  then(callback: (value: T) => unknown): void {
+    if (this.resolved) {
+      callback(this.value);
     } else {
       this.callbacks.push(callback);
     }
   }
 
-  resolve(injector: Injector) {
-    this.injector = injector;
+  static all<T>(promises: (T|Thenable<T>)[]): SyncPromise<T[]> {
+    const aggrPromise = new SyncPromise<T[]>();
 
+    let resolvedCount = 0;
+    const results: T[] = [];
+
+    const resolve = (idx: number, value: T) => {
+      results[idx] = value;
+
+      if(++resolvedCount === promises.length) aggrPromise.resolve(results);
+    };
+
+    promises.forEach((p, i) => {
+      if (p && isThenable(p as object)) {
+        (p as Thenable<T>).then((v: any) => resolve(i, v));
+      } else {
+        resolve(i, p as T);
+      }
+    });
+
+    return aggrPromise;
+  }
+}
+
+/**
+ * Synchronous promise-like object to wrap parent injectors,
+ * to preserve the synchronous nature of Angular 1's $compile.
+ */
+class ParentInjectorPromise extends SyncPromise<Injector> {
+  private injectorKey: string = controllerKey(INJECTOR_KEY);
+
+  constructor(private element: IAugmentedJQuery) {
+    super();
+    // Store the promise on the element.
+    element.data !(this.injectorKey, this);
+  }
+
+  resolve(injector: Injector) {
     // Store the real injector on the element.
     this.element.data !(this.injectorKey, injector);
 
@@ -249,8 +284,7 @@ class ParentInjectorPromise {
     this.element = null !;
 
     // Run the queued callbacks.
-    this.callbacks.forEach(callback => callback(injector));
-    this.callbacks.length = 0;
+    super.resolve(injector);
   }
 }
 
