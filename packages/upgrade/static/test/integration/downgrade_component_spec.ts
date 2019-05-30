@@ -816,5 +816,53 @@ withEachNg1Version(() => {
                              'You should not specify a value for \'downgradedModule\', unless you are ' +
                              'downgrading more than one Angular module (via \'downgradeModule()\').'));
        }));
+
+    it('should throw Promise.all error', async(() => {
+         @Component({selector: 'ng2', template: 'test'})
+         class Ng2Component {
+         }
+
+         @NgModule({
+           declarations: [Ng2Component],
+           entryComponents: [Ng2Component],
+           imports: [BrowserModule, UpgradeModule]
+         })
+         class Ng2Module {
+           ngDoBootstrap() {}
+         }
+
+         const ng1Module =
+             angular.module_('ng1', [])
+                 .directive(
+                     'ng1',
+                     [
+                       '$compile',
+                       ($compile: angular.ICompileService) => {
+                         return {
+                           link: function(
+                               $scope: angular.IScope, $element: angular.IAugmentedJQuery,
+                               $attrs: angular.IAttributes) {
+
+                             // compile downgraded component
+                             const compiled = $compile('<ng2></ng2>');
+
+                             // call $scope.$apply();
+                             $scope.$apply();
+
+                             // append to body
+                             const template = compiled($scope);
+                             $element.append !(template);
+                           }
+                         };
+                       }
+                     ])
+                 .directive('ng2', downgradeComponent({component: Ng2Component}));
+
+         const element = html('<ng1></ng1>');
+         bootstrap(platformBrowserDynamic(), Ng2Module, element, ng1Module).then((upgrade) => {
+           expect(multiTrim(document.body.textContent)).toEqual('test');
+         });
+       }));
+
   });
 });

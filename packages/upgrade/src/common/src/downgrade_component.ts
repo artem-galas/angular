@@ -248,11 +248,11 @@ class SyncPromise<T> {
     const resolve = (idx: number, value: T) => {
       results[idx] = value;
 
-      if(++resolvedCount === promises.length) aggrPromise.resolve(results);
+      if (++resolvedCount === promises.length) aggrPromise.resolve(results);
     };
 
     promises.forEach((p, i) => {
-      if (p && isThenable(p as object)) {
+      if (isThenable(p as object)) {
         (p as Thenable<T>).then((v: any) => resolve(i, v));
       } else {
         resolve(i, p as T);
