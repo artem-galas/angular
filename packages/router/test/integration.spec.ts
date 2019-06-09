@@ -175,6 +175,28 @@ describe('Integration', () => {
          expect(location.urlChanges).toEqual(['replace: /', 'replace: /b']);
        })));
 
+    fit('should not push to browser history when replaceUrl is set to true and using relativeTo',
+        fakeAsync(inject(
+            [Router, Location, ActivatedRoute],
+            (router: Router, location: SpyLocation, activatedRoute: ActivatedRoute) => {
+              router.resetConfig([
+                {path: '', component: SimpleCmp},
+                {path: 'a', component: SimpleCmp},
+                {path: 'b', component: SimpleCmp},
+              ]);
+
+              const fixture = createRoot(router, RootCmp);
+
+              router.navigate(['/a'], {queryParams: {foo: 'bar'}});
+
+              advance(fixture);
+              router.navigate(
+                  ['.'], {relativeTo: activatedRoute, queryParams: {}, replaceUrl: true});
+              advance(fixture);
+
+              expect(router.url).toBe('/a');
+            })));
+
     it('should skip navigation if another navigation is already scheduled',
        fakeAsync(inject([Router, Location], (router: Router, location: SpyLocation) => {
          router.resetConfig([
