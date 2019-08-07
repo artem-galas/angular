@@ -393,6 +393,13 @@ export class Router {
   relativeLinkResolution: 'legacy'|'corrected' = 'legacy';
 
   /**
+   * Add custom class for routerLink host element
+   *
+   * @see `RouterModule`;
+   */
+  routerLinkActiveClass: string|undefined = undefined;
+
+  /**
    * Creates the router service.
    */
   // TODO: vsavkin make internal after the final is out.

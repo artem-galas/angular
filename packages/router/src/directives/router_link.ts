@@ -219,9 +219,23 @@ export class RouterLinkWithHref implements OnChanges, OnDestroy {
 
   constructor(
       private router: Router, private route: ActivatedRoute,
-      private locationStrategy: LocationStrategy) {
+      private locationStrategy: LocationStrategy, private element: ElementRef,
+      private renderer: Renderer2) {
     this.subscription = router.events.subscribe((s: Event) => {
       if (s instanceof NavigationEnd) {
+        if (this.router.isActive(this.urlTree, false)) {
+          if (this.router.routerLinkActiveClass) {
+            this.renderer.addClass(
+              this.element.nativeElement, this.router.routerLinkActiveClass);
+          }
+
+        } else {
+          if (this.router.routerLinkActiveClass) {
+            this.renderer.removeClass(
+              this.element.nativeElement, this.router.routerLinkActiveClass);
+          }
+        }
+
         this.updateTargetUrlAndHref();
       }
     });

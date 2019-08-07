@@ -416,6 +416,22 @@ export interface ExtraOptions {
    * behavior. Setting this option to `corrected` enables the fix.
    */
   relativeLinkResolution?: 'legacy'|'corrected';
+
+  /**
+   * Add custom active class for all routerLink directives
+   *
+   * default = undefined
+   *
+   * Example
+   * ```
+   * <a [routerLink]=['a']>
+   * <a [routerLink]=['b']>
+   * <a [routerLink]=['b']>
+   * ```
+   *
+   * All those elements will get custom class
+   */
+  routerLinkActiveClass?: string;
 }
 
 export function setupRouter(
@@ -466,6 +482,10 @@ export function setupRouter(
 
   if (opts.relativeLinkResolution) {
     router.relativeLinkResolution = opts.relativeLinkResolution;
+  }
+
+  if (opts.routerLinkActiveClass) {
+    router.routerLinkActiveClass = opts.routerLinkActiveClass;
   }
 
   return router;

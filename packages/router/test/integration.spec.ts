@@ -4857,6 +4857,42 @@ describe('Testing router options', () => {
          expect(router.malformedUriErrorHandler).toBe(malformedUriErrorHandler);
        })));
   });
+
+  describe('routerLinkActiveClass', () => {
+    beforeEach(() => {TestBed.configureTestingModule({
+                 imports: [
+                   RouterTestingModule.withRoutes(
+                       [{path: 'simple', component: AbsoluteSimpleLinkCmp}],
+                       {routerLinkActiveClass: 'router-link-active'}),
+                   TestModule
+                 ]
+               })});
+
+    it('should configure the router', fakeAsync(inject([Router], (router: Router) => {
+         expect(router.routerLinkActiveClass).toEqual('router-link-active');
+       })));
+
+    it('routerLink host should has active class', fakeAsync(inject([Router], (router: Router) => {
+         const fixture = TestBed.createComponent(AbsoluteSimpleLinkCmp);
+         router.navigateByUrl('/simple');
+         advance(fixture);
+
+         const linkElement =
+             fixture.debugElement.query(By.css('a')).nativeElement as HTMLAnchorElement;
+
+         expect(linkElement.classList.contains('router-link-active')).toBeTruthy();
+       })));
+
+    it('routerLink host should nod has active class', fakeAsync(inject([Router], (router: Router) => {
+        const fixture = TestBed.createComponent(AbsoluteSimpleLinkCmp);
+        advance(fixture);
+
+        const linkElement =
+          fixture.debugElement.query(By.css('a')).nativeElement as HTMLAnchorElement;
+
+        expect(linkElement.classList.contains('router-link-active')).toBeFalsy();
+    })));
+  });
 });
 
 function expectEvents(events: Event[], pairs: any[]) {
